@@ -1,6 +1,8 @@
-# Truffle Box (React)
+# Truffle Box Redux Starter
 
-This box comes with everything you need to start using smart contracts from a react app. This is as barebones as it gets, so nothing stands in your way.
+This repo was created to provide some additional functionality to the very awesome [truffle-box](https://github.com/truffle-box/truffle-box-react). The main addition is a web3Api client which can be extended to include redux friendly api calls to deployed contracts.
+
+In the future one of my goals is to integrate the [web3-redux](https://github.com/DigixGlobal/web3-redux) project directly into this.
 
 ## Installation
 
