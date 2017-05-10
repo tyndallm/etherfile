@@ -50,6 +50,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "bitcore-lib": "^0.14.0",
     "dotenv": "^2.0.0",
     "react": "^15.3.1",
     "react-dom": "^15.3.1",
@@ -59,6 +60,8 @@
     "redux": "^3.6.0",
     "redux-actions": "^2.0.2",
     "redux-thunk": "^2.2.0",
+    "semantic-ui-react": "^0.68.3",
+    "truffle": "^3.2.2",
     "web3": "^0.18.2"
   },
   "scripts": {

@@ -1,26 +1,28 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {fetchAccountsAndBalances} from '../actions/userActions';
+import { Grid } from 'semantic-ui-react';
+
+import './appContainer.css';
 
 class AppContainer extends React.Component {
     
     componentDidMount() {
         const {dispatch} = this.props;
-        dispatch(fetchAccountsAndBalances);
+        dispatch(fetchAccountsAndBalances());
     }
 
     render() {
-        console.log(this.props);
         let content = (
-            <div>
+            <div className={'mainContent'}>
                 {this.props.children}
             </div>
         );
 
         return (
-            <div>
+            <Grid container>
                 {content}
-            </div>
+            </Grid>
         );
     }
 }
