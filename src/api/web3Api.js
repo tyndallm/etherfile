@@ -87,6 +87,12 @@ export function registerUser(userAddress, username) {
     });
 }
 
+export function getUserProducts(userAddress, username) {
+    return new Promise((resolve, reject) => {
+        resolve("success");
+    });
+}
+
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {
         web3Client().eth.getBlockNumber(function (err, blockNum) {

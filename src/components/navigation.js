@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Menu, Dropdown, Button, Container } from 'semantic-ui-react';
-// import { getFormattedUserAccount } from '../utils/textUtils';
+import { push } from 'react-router-redux';
 
 class Navigation extends Component {
 
-    handleItemClick = () => {
-        console.log("item clicked");
+    handleItemClick = (e, { value }) => {
+        console.log("item clicked: ", value);
+        console.log(this.props);
+        const { dispatch } = this.props;
+        dispatch(push(value));
     }
 
     render() {
@@ -22,8 +25,8 @@ class Navigation extends Component {
                 borderless={true}
                 fixed={'top'}>
                 <Container>
-                    <Menu.Item name='EtherFile' onClick={this.handleItemClick} />
-                    <Menu.Item name='dashboard' onClick={this.handleItemClick} />
+                    <Menu.Item name='EtherFile' value={'/'} onClick={this.handleItemClick} />
+                    <Menu.Item name='dashboard' value={'/dashboard'} onClick={this.handleItemClick} />
 
                     <Menu.Menu position='right'>
                         <Dropdown item text='Language'>
@@ -35,7 +38,7 @@ class Navigation extends Component {
                         </Dropdown>
 
                         <Menu.Item>
-                            <Button primary>Sign Up</Button>
+                            <Button primary value={'/register'} onClick={this.handleItemClick}>Sign Up</Button>
                         </Menu.Item>
                     </Menu.Menu>
                 </Container>

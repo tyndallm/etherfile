@@ -23,7 +23,8 @@ class AppContainer extends React.Component {
             <div className={'mainContent'}>
                 <Navigation 
                     user={this.props.user}
-                    onHandleSelectAccount={this.handleSelectAccount} />
+                    onHandleSelectAccount={this.handleSelectAccount} 
+                    dispatch={this.props.dispatch}/>
                 {this.props.children}
             </div>
         );
