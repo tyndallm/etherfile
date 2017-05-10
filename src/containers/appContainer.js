@@ -1,7 +1,8 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {fetchAccountsAndBalances} from '../actions/userActions';
+import { fetchAccountsAndBalances, setSelectedAccount } from '../actions/userActions';
 import { Grid } from 'semantic-ui-react';
+import Navigation from '../components/navigation';
 
 import './appContainer.css';
 
@@ -12,9 +13,17 @@ class AppContainer extends React.Component {
         dispatch(fetchAccountsAndBalances());
     }
 
+    handleSelectAccount = (accountIndex) => {
+        const {dispatch} = this.props;
+        dispatch(setSelectedAccount(accountIndex));
+    }
+
     render() {
         let content = (
             <div className={'mainContent'}>
+                <Navigation 
+                    user={this.props.user}
+                    onHandleSelectAccount={this.handleSelectAccount} />
                 {this.props.children}
             </div>
         );
