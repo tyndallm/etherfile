@@ -1,15 +1,20 @@
 import Web3 from 'web3';
 import {getExtendedWeb3Provider} from '../utils/web3Utils';
 import bitcore from 'bitcore-lib';
-// import SimpleStorageContract from '../../build/contracts/SimpleStorage.json';
+import EtherfileHubContract from '../../build/contracts/EtherfileHub.json';
 
 const contract = require('truffle-contract');
 
 let web3Provided;
 
-// An example of how to properly setup contracts in Truffle 3.x
-// const simpleStorage = contract(SimpleStorageContract);
-// simpleStorage.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+const etherfileHub = contract(EtherfileHubContract);
+/*eslint-disable */
+if (typeof web3 !== 'undefined') {
+    etherfileHub.setProvider(new Web3(web3.currentProvider));
+} else {
+    etherfileHub.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+}
+/*eslint-enable */
 
 function initializeWeb3() {
     /*eslint-disable */
@@ -79,11 +84,45 @@ export function registerUser(userAddress, username) {
 
             console.log("signed result: ", publicKey.toString());
 
-            // TODO save the public key to a contract
-
-            resolve(result);
+            etherfileHub.deployed().then(function(instance) {
+                return instance.registerUser(username, publicKey.toString(), { from: userAddress });
+            }).then(function(result) {
+                console.log(result);
+                resolve(result);
+            });
         });
         
+    });
+}
+
+export function checkIfUserExists(userAddress, username) {
+    return new Promise((resolve, reject) => {
+
+        let etherfileHubInstance;
+        etherfileHub.deployed().then(function(instance) {
+            etherfileHubInstance = instance;
+            let broadcastEvent = etherfileHubInstance.BroadcastPublicKey({addr: userAddress}, function(err, result) {
+                if (err) {
+                    reject("Error: ", err);
+                }
+
+                let retrievedPublicKey = result.args.publicKey;
+
+                let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
+                web3Client().eth.sign(userAddress, "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49", function (err, result) {
+                    var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // remove 0x, left with 64 bits?
+                    var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
+
+                    if (retrievedPublicKey === publicKey.toString()) {
+                        console.log("keys match!");
+                        resolve(result);
+                    } else {
+                        console.log("keys don't match");
+                        reject("Wrong user");
+                    }
+                });
+            });
+        });
     });
 }
 

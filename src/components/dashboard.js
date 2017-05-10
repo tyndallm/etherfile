@@ -13,7 +13,13 @@ class Dashboard extends Component {
         this.state = initialState;
     }
 
+    componentDidMount() {
+        const { dispatch } = this.props;
+        console.log("dispatch: ", dispatch);
+    }
+
     render() {
+        console.log(this.props);
         return (
             <div>
                 <h1>Dashboard</h1>

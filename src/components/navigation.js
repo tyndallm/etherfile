@@ -6,8 +6,6 @@ import { push } from 'react-router-redux';
 class Navigation extends Component {
 
     handleItemClick = (e, { value }) => {
-        console.log("item clicked: ", value);
-        console.log(this.props);
         const { dispatch } = this.props;
         dispatch(push(value));
     }
