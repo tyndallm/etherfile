@@ -21,14 +21,14 @@ export function fetchAccountsAndBalances() {
     };
 }
 
-export function checkUserExists(userAddress, username) {
+export function checkUserExists(userAddress) {
     return {
         types: [
             checkUserExistsRequest,
             checkUserExistsSuccess,
             checkUserExistsFailure
         ],
-        callApi: () => Web3Api.checkIfUserExists(userAddress, username),
+        callApi: () => Web3Api.checkIfUserExists(userAddress),
         payload: {}
     };
 }

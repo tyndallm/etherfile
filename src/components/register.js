@@ -24,7 +24,7 @@ class Register extends Component {
         const { user } = this.props;
         //let userAddress = _this.props.user.accounts[1].address;
         let selectedUserAddress = user.accounts[user.selectedAccount].address;
-        _this.props.registerUser(selectedUserAddress, _this.state.username);
+        _this.props.registerUser(selectedUserAddress, _this.state.username, _this.state.email);
     };
 
     render() {

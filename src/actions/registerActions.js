@@ -5,14 +5,14 @@ export const registerUserRequest = "@@register/REGISTER_USER_REQUEST";
 export const registerUserSuccess = "@@register/REGISTER_USER_SUCCESS";
 export const registerUserFailure = "@@register/REGISTER_USER_FAILURE";
 
-export function registerUser(userAddress, username) {
+export function registerUser(userAddress, username, email) {
     return {
         types: [
             registerUserRequest,
             registerUserSuccess,
             registerUserFailure,
         ],
-        callApi: () => Web3Api.registerUser(userAddress, username),
+        callApi: () => Web3Api.registerSeller(userAddress, username, email),
         payload: {}
     };
 }
