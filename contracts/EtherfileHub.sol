@@ -30,7 +30,7 @@ contract EtherfileHub is Destructible {
         sellers[msg.sender] = s; // assign username to seller contract
         sellerCount++; // increase seller count
 
-        existingUsernames[_username] = s; // TODO: Not sure if this should be msg.sender or sellerContractAddr...
+        existingUsernames[_username] = s;
 
         //BroadcastPublicKey(_username, msg.sender, _publicKey);
 

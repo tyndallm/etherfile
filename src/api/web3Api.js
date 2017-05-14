@@ -3,8 +3,11 @@ import {getExtendedWeb3Provider} from '../utils/web3Utils';
 import bitcore from 'bitcore-lib';
 import EtherfileHubContract from '../../build/contracts/EtherfileHub.json';
 import SellerContract from '../../build/contracts/Seller.json';
+import ProductContract from '../../build/contracts/Product.json';
 
 const contract = require('truffle-contract');
+
+const SIGN_DATA = web3Client().sha3("Etherfile is awesome");
 
 let web3Provided;
 
@@ -29,6 +32,18 @@ if (typeof web3 !== 'undefined') {
     seller.setProvider(new Web3(web3.currentProvider));
 } else {
     seller.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
+}
+/*eslint-enable */
+
+/**
+ * Initialize Product contract factory
+ */
+const product = contract(ProductContract);
+/*eslint-disable */
+if (typeof web3 !== 'undefined') {
+    product.setProvider(new Web3(web3.currentProvider));
+} else {
+    product.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 }
 /*eslint-enable */
 
@@ -86,38 +101,13 @@ export function getAccountBalance(account) {
     });
 }
 
-// export function registerUser(userAddress, username) {
-//     return new Promise((resolve, reject) => {
-//         let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
-//         web3Client().eth.sign(userAddress, signData , function (err, result) {
-//             var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // remove 0x, left with 64 bits?
-//             console.log("privateKey: ", privateKey.toString());
-//             var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
-
-//             if (err) {
-//                 console.log("Error: ", err);
-//                 reject(err);
-//             }
-
-//             console.log("signed result: ", publicKey.toString());
-
-//             etherfileHub.deployed().then(function(instance) {
-//                 return instance.registerUser(username, publicKey.toString(), { from: userAddress });
-//             }).then(function(result) {
-//                 console.log(result);
-//                 resolve(result);
-//             });
-//         });
-        
-//     });
-// }
 export function registerSeller(userAddress, username, email) {
     return new Promise((resolve, reject) => {
 
-        let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
+        // let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
 
         // generate public key for username
-        web3Client().eth.sign(userAddress, signData , function (err, result) {
+        web3Client().eth.sign(userAddress, SIGN_DATA , function (err, result) {
             var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // 64 bits
             var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
 
@@ -140,104 +130,171 @@ export function registerSeller(userAddress, username, email) {
     });
 }
 
-// export function checkIfUserExists(userAddress, username) {
+export function loginSeller(userAddress) {
+    return new Promise((resolve, reject) => {
+        etherfileHub.deployed().then(function(instance) {
+
+            getSellerAddress(userAddress).then(function(sellerAddress) {
+                if (sellerAddress !== '0x0000000000000000000000000000000000000000') {
+                    console.log("User is registered");
+                    getSellerDetails(sellerAddress).then(function(sellerDetails) {
+                        console.log("getSellerDetails result: ", sellerDetails);
+                        //resolve(result);
+
+                        authenticateSellerKey(sellerDetails.publicKey, userAddress).then(function(authenticated) {
+                            if (authenticated) {
+                                console.log("User is authenticated");
+                                resolve(sellerDetails);
+                            } else {
+                                console.log("Error: Unable to authenticate");
+                                reject("Unable to authenticate");
+                            }
+                        })
+                    });
+                } else {
+                    console.log("User is not registered");
+                    resolve("User is not registered");
+                }
+            });
+
+        });
+    });
+}
+
+export function getSellerAddress(userAddress) {
+    return new Promise((resolve, reject) => {
+        etherfileHub.deployed().then(function(instance) {
+            instance.sellers.call(userAddress).then(function(result) {
+                resolve(result);
+            });
+        });
+    });
+}
+
+export function getSellerDetails(sellerAddress) {
+    return new Promise((resolve, reject) => {
+        seller.at(sellerAddress).then(function(instance) {
+            instance.getSeller.call().then(function(sellerDetails) {
+                let sellerObject = {
+                    username: web3Client().toAscii(sellerDetails[0]),
+                    email: web3Client().toAscii(sellerDetails[1]),
+                    publicKey: sellerDetails[2],
+                    creator: sellerDetails[3],
+                    created: sellerDetails[4].toNumber(),
+                    productCount: sellerDetails[5].toNumber(),
+                    contractAddress: sellerAddress
+                }
+                resolve(sellerObject);
+            });
+        });
+    });
+}
+
+export function authenticateSellerKey(retrievedPublicKey, userAddress) {
+    return new Promise((resolve, reject) => {
+        // let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
+        web3Client().eth.sign(userAddress, SIGN_DATA, function (err, result) {
+            var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // 64 bits
+            var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
+
+            if (err) {
+                console.log("Error: unable to sign data");
+                reject("Error: unable to sign data");
+            }
+
+            if (retrievedPublicKey !== publicKey.toString()) {
+                console.log("Error: keys don't match!");
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        });
+    })
+}
+
+
+
+export function createProduct(userAddress, sellerAddress, name, costInWei) {
+    console.log("userAddress: ", userAddress);
+    console.log("sellerAddress: ", sellerAddress);
+    console.log("name: ", name);
+    console.log("costInWei: ", costInWei);
+    return new Promise((resolve, reject) => {
+        seller.at(sellerAddress).then(function(instance) {
+            console.log("sellerInstance: ", instance);
+            return instance.createProduct(name, costInWei, { from: userAddress, gas: 400000 });
+        }).then(function(result) {
+            console.log(result);
+            resolve(result);
+        });
+    });
+}
+
+// export function getSellerProducts(sellerAddress) {
+//     console.log("requested seller address: ", sellerAddress);
 //     return new Promise((resolve, reject) => {
+//         seller.at(sellerAddress).then(function(instance) {
+//             return instance.productCount.call();
+//         }).then(function(result) {
+//             console.log("result: ", result);
+//             let productCount = result.valueOf();
+//             console.log("web3Api.getSellerProducts() count: " + productCount);
 
-//         let etherfileHubInstance;
-//         etherfileHub.deployed().then(function(instance) {
-//             etherfileHubInstance = instance;
-//             let broadcastEvent = etherfileHubInstance.BroadcastPublicKey({addr: userAddress}, function(err, result) {
-//                 if (err) {
-//                     reject("Error: ", err);
-//                 }
+//             // create an array where length = productCount
+//             let array = Array.apply(null, {length: productCount}).map(Number.call, Number);
 
-//                 let retrievedPublicKey = result.args.publicKey;
+//             // fill array with corresponding product contract addresses
+//             let productAddressPromises = array.map((id => {
+//                 return getProductAddress(id);
+//             }));
 
-//                 let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
-//                 web3Client().eth.sign(userAddress, signData, function (err, result) {
-//                     var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // remove 0x, left with 64 bits?
-//                     var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
+//             // get projectDetails for each projectAddress promise
+//             Promise.all(productAddressPromises).then((productAddresses) => {
+//                 let productPromises = productAddresses.map((address => {
+//                     return getProduct(address);
+//                 }));
 
-//                     if (retrievedPublicKey === publicKey.toString()) {
-//                         resolve(result);
-//                     } else {
-//                         reject("Keys don't match, wrong user");
-//                     }
+//                 Promise.all(productPromises).then((products) => {
+//                     resolve(products);
 //                 });
 //             });
 //         });
 //     });
 // }
 
-/**
- * We can use the as a sort of "untrusted login"
- * From the UI perspective if the username checks out and the publickey matches, the user is effectively logged in
- * However any contract transactions will also require that the msg.sender matches the owner 
- * (this provides authentication protection, but not necessarily privacy of a sellers data)
- */
-export function checkIfUserExists(userAddress) {
+export function getSellerProducts(sellerContractAddress) {
     return new Promise((resolve, reject) => {
-
-        let etherfileHubInstance;
-        etherfileHub.deployed().then(function(instance) {
-            etherfileHubInstance = instance;
-
-            // 1. Get user's sellerAddress
-            etherfileHubInstance.sellers.call(userAddress).then(function(sellerAddress) {
-
-                if (sellerAddress === 0) {
-                    console.log("Error: seller does not exist");
-                    reject("Error: seller does not exist. Either the username doesn't exist or sellerContract doesn't...");
-                }
-
-                console.log("sellerAddress: ", sellerAddress);
-
-                let sellerInstance;
-                seller.at(sellerAddress).then(function(instance) {
-                    sellerInstance = instance;
-
-                    // 2. Get requested seller's publicKey
-                    sellerInstance.getSeller.call().then(function(sellerDetails) {
-                        let sellerObject = {
-                            username: web3Client().toAscii(sellerDetails[0]),
-                            email: web3Client().toAscii(sellerDetails[1]),
-                            publicKey: sellerDetails[2],
-                            addr: sellerDetails[3],
-                            created: sellerDetails[4].toNumber(),
-                            productCount: sellerDetails[5].toNumber()
-                        }
-
-                        console.log("sellerObject: ", sellerObject);
-
-                        // 3. Confirm it matches requesting user's publicKey
-                        let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
-                        web3Client().eth.sign(userAddress, signData, function (err, result) {
-                            var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // 64 bits
-                            var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
-
-                            if (err) {
-                                console.log("Error: unable to sign data");
-                                reject("Error: unable to sign data");
-                            }
-
-                            if (sellerObject.publicKey !== publicKey.toString()) {
-                                console.log("Error: keys don't match!");
-                                reject("Error: keys don't match");
-                            } else {
-                                resolve(sellerObject);
-                            }
-                        });
-                    });
-                });
-
+        seller.at(sellerContractAddress).then(function(instance) {
+            instance.productCount.call().then(function(count) {
+                console.log("count.valueOf(): ", count.valueOf());
+                resolve(count.valueOf());
             });
         });
     });
 }
 
-export function getUserProducts(userAddress, username) {
+function getProductAddress(sellerAddress, id) {
     return new Promise((resolve, reject) => {
-        resolve("success");
+        seller.at(sellerAddress).then(function(instance) {
+            instance.products.call(id).then(function(address) {
+                resolve(address);
+            });
+        });
+    });
+}
+
+export function getProduct(productAddress) {
+    return new Promise((resolve, reject) => {
+        product.at(productAddress).then(function(instance) {
+
+            instance.getProduct.call().then(function(productDetails) {
+                resolve({
+                    name: web3Client().toAscii(productDetails[0]),
+                    costInWei: productDetails[1].toNumber(),
+                    unitsSold: productDetails[2],
+                });
+            });
+        });
     });
 }
 

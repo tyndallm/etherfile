@@ -24,3 +24,6 @@ export const failureReducer = (state, action) => {
 }
 
 export const fetchAccountsSuccessReducer = createSuccessReducer("accounts");
+export const loginSellerSuccessReducer = createSuccessReducer("seller");
+export const fetchProductsSuccessReducer = createSuccessReducer("products");
+export const createProductSuccessReducer = createSuccessReducer("productCreated");

@@ -14,9 +14,20 @@ class Navigation extends Component {
         const {
             user: { 
                 accounts,
-                selectedAccount 
+                selectedAccount,
+                seller,
             }
         } = this.props;
+
+        let selectedDropdown = "";
+
+        if (accounts.length > 0) {
+            if (!!seller) {
+                selectedDropdown = seller.username;
+            } else {
+                selectedDropdown = accounts[selectedAccount].address;
+            }
+        }
 
         return (
             <Menu size='small'
@@ -27,11 +38,15 @@ class Navigation extends Component {
                     <Menu.Item name='dashboard' value={'/dashboard'} onClick={this.handleItemClick} />
 
                     <Menu.Menu position='right'>
-                        <Dropdown item text='Language'>
+                        <Dropdown item text={selectedDropdown}>
                             <Dropdown.Menu>
-                            <Dropdown.Item>English</Dropdown.Item>
-                            <Dropdown.Item>Russian</Dropdown.Item>
-                            <Dropdown.Item>Spanish</Dropdown.Item>
+                                 {accounts.map((account, index) =>
+                                    <Dropdown.Item 
+                                        key={index}
+                                        onClick={() => this.props.onHandleSelectAccount(index)}>
+                                        {account.address}
+                                    </Dropdown.Item>
+                                 )}
                             </Dropdown.Menu>
                         </Dropdown>
 

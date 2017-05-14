@@ -1,6 +1,13 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import { fetchAccountsAndBalances, setSelectedAccount } from '../actions/userActions';
+import { 
+    fetchAccountsAndBalances, 
+    setSelectedAccount
+} from '../actions/userActions';
+import {
+    loginSeller,
+} from '../actions/sellerActions';
+
 import { Grid } from 'semantic-ui-react';
 import Navigation from '../components/navigation';
 
@@ -10,11 +17,16 @@ class AppContainer extends React.Component {
     
     componentDidMount() {
         const {dispatch} = this.props;
-        dispatch(fetchAccountsAndBalances());
+        dispatch(fetchAccountsAndBalances())
+        .then(() => {
+            let selectedUserAddress = this.props.user.accounts[this.props.user.selectedAccount].address;
+            dispatch(loginSeller(selectedUserAddress));
+        });
     }
 
     handleSelectAccount = (accountIndex) => {
         const {dispatch} = this.props;
+        console.log(accountIndex);
         dispatch(setSelectedAccount(accountIndex));
     }
 

@@ -5,6 +5,7 @@ import HomeContainer from '../containers/homeContainer';
 import LandingContainer from '../containers/landingContainer';
 import RegisterContainer from '../containers/registerContainer';
 import DashboardContainer from '../containers/dashboardContainer';
+// import UserIsAuthenticated from '../utils/authUtils';
 
 export default () => {
     return (

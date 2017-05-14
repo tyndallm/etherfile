@@ -18,6 +18,7 @@ const initialState = {
     accounts: [],
     coinbase: "",
     selectedAccount: 0,
+    isRegistered: false
 }
 
 const setSelectedAccount = (state, action) => {
@@ -30,5 +31,5 @@ export const userReducer = handleActions({
     [fetchAccountsRequest]: requestReducer,
     [fetchAccountsSuccess]: fetchAccountsSuccessReducer,
     [fetchAccountsFailure]: failureReducer,
-    [selectAccount]: setSelectedAccount
+    [selectAccount]: setSelectedAccount,
 }, initialState);

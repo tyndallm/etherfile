@@ -9,11 +9,11 @@ contract Seller is Ownable {
         bytes32 username;
         bytes32 email;
         string publicKey;
-        address addr;
+        address creator;
         uint256 created;
     }
 
-    uint productCount;
+    uint public productCount;
 
     mapping(uint => address) public products;
 
@@ -33,7 +33,7 @@ contract Seller is Ownable {
             username: _username,
             email: _email,
             publicKey: _publicKey,
-            addr: _userAddr,
+            creator: _userAddr,
             created: block.number
         });
 
@@ -46,7 +46,7 @@ contract Seller is Ownable {
     * [0] -> Seller.details.username
     * [1] -> Seller.details.email
     * [2] -> Seller.details.publicKey
-    * [3] -> Seller.details.addr
+    * [3] -> Seller.details.creator
     * [4] -> Seller.details.created
     * [5] -> productCount
     */
@@ -55,13 +55,13 @@ contract Seller is Ownable {
             details.username,
             details.email,
             details.publicKey,
-            details.addr,
+            details.creator,
             details.created,
             productCount
         );
     }
 
-    function createProduct(bytes32 _name, uint _costInWei) onlySeller returns (address productAddress) {
+    function createProduct(bytes32 _name, uint _costInWei) returns (address) {
         Product p = new Product(_name, _costInWei);
         products[productCount] = p;
         LogProductCreated(productCount, address(this), p);
