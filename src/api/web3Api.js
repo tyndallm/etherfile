@@ -215,17 +215,21 @@ export function authenticateSellerKey(retrievedPublicKey, userAddress) {
 
 
 export function createProduct(userAddress, sellerAddress, name, costInWei) {
+
     console.log("userAddress: ", userAddress);
     console.log("sellerAddress: ", sellerAddress);
-    console.log("name: ", name);
-    console.log("costInWei: ", costInWei);
+    var productName = "Test Product";
+    var productCost = 10000000000000000000;
+
     return new Promise((resolve, reject) => {
+        let sellerInstance;
         seller.at(sellerAddress).then(function(instance) {
-            console.log("sellerInstance: ", instance);
-            return instance.createProduct(name, costInWei, { from: userAddress, gas: 400000 });
+            console.log("instance: ", instance);
+            return instance.getPublicKey.call();
+        }).catch(function(exception){ 
+            console.log(exception);
         }).then(function(result) {
-            console.log(result);
-            resolve(result);
+            console.log("result: ", result);
         });
     });
 }

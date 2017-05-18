@@ -5,6 +5,7 @@ import HomeContainer from '../containers/homeContainer';
 import LandingContainer from '../containers/landingContainer';
 import RegisterContainer from '../containers/registerContainer';
 import DashboardContainer from '../containers/dashboardContainer';
+import ProductContainer from '../containers/productContainer';
 // import UserIsAuthenticated from '../utils/authUtils';
 
 export default () => {
@@ -13,6 +14,7 @@ export default () => {
             <IndexRoute component={LandingContainer}/>
             <Route path="/register" component={RegisterContainer}/>
             <Route path="/dashboard" component={DashboardContainer}/>
+            <Route path="/product" component={ProductContainer}/>
         </Route>
     )
 }

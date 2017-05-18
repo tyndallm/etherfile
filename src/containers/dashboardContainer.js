@@ -1,7 +1,8 @@
 import { connect } from 'react-redux';
-import { fetchProducts, createProduct } from '../actions/sellerActions';
+// import { fetchProducts, createProduct } from '../actions/sellerActions';
 import React, { Component } from 'react';
 import { Button } from 'semantic-ui-react';
+import { createProduct } from '../api/web3Api';
 
 var _this;
 
@@ -54,9 +55,10 @@ class Dashboard extends Component {
         console.log("seller contract address: ", seller.contractAddress);
 
         // TODO display modal form?
-        dispatch(createProduct(selectedUserAddress, seller.contractAddress, "TestBook", 10000000000000000000))
-        .then(() => {
-            //dispatch(fetchProducts(seller.contractAddress));
+        // dispatch(createProduct(selectedUserAddress, seller.contractAddress, "TestBook", 10000000000000000000));
+
+        createProduct(selectedUserAddress, seller.contractAddress, "Test", 100000000000).then(function(result) {
+            console.log("returned result: ", result);
         });
     }
 

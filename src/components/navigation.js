@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Menu, Dropdown, Button, Container } from 'semantic-ui-react';
+import { Menu, Dropdown, Button, Container, Label, Icon } from 'semantic-ui-react';
 import { push } from 'react-router-redux';
 
 class Navigation extends Component {
@@ -34,8 +34,12 @@ class Navigation extends Component {
                 borderless={true}
                 fixed={'top'}>
                 <Container>
-                    <Menu.Item name='EtherFile' value={'/'} onClick={this.handleItemClick} />
-                    <Menu.Item name='dashboard' value={'/dashboard'} onClick={this.handleItemClick} />
+                    <Menu.Item name='Etherfile' value={'/'} onClick={this.handleItemClick} />
+                    <Menu.Item>
+                        <Label color={'teal'}>
+                            <Icon name='plug' />Ropsten
+                        </Label>
+                    </Menu.Item>
 
                     <Menu.Menu position='right'>
                         <Dropdown item text={selectedDropdown}>

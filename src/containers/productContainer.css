@@ -1,0 +1,31 @@
+.productHeader {
+    padding: 45px 35px 35px 40px !important;
+    background: #3b3c3e !important;
+    font-size: 18px;
+    color: #999;
+}
+
+.productHeader .title {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    margin-bottom: 10px;
+    color: #fff !important;
+}
+
+.productHeader .price {
+    font-size: 18px !important;
+    color: #999 !important;
+    margin-bottom: 10px;
+}
+
+.productDescription {
+    padding: 28px 35px !important;
+}
+
+.productDescription p {
+    color: #96999d !important;
+    font-size: 1.2rem;
+    font-weight: 400;
+    line-height: 1.2;
+    margin-bottom: 20px !important;
+}

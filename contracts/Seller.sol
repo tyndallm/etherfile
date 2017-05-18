@@ -3,7 +3,7 @@ pragma solidity ^0.4.4;
 import './zeppelin/ownership/Ownable.sol';
 import './Product.sol';
 
-contract Seller is Ownable {
+contract Seller is Ownable{
 
     struct Details {
         bytes32 username;
@@ -19,13 +19,7 @@ contract Seller is Ownable {
 
     Details details;
 
-    modifier onlySeller {
-        if (owner != msg.sender) throw;
-        _;
-    }
-
     event BroadcastSellerCreated(bytes32 indexed username, address indexed hubAddress, string publicKey);
-    event LogProductCreated(uint productId, address indexed sellerAddress, address indexed productAddress);
 
     function Seller(bytes32 _username, bytes32 _email, string _publicKey, address _userAddr) {
 
@@ -40,6 +34,14 @@ contract Seller is Ownable {
         productCount = 0;
 
         BroadcastSellerCreated(_username, msg.sender, _publicKey);
+    }
+
+    function getPublicKey() returns (string) {
+        return details.publicKey;
+    }
+
+    function getProductCount() returns (uint) {
+        return productCount;
     }
 
     /**
@@ -59,18 +61,6 @@ contract Seller is Ownable {
             details.created,
             productCount
         );
-    }
-
-    function createProduct(bytes32 _name, uint _costInWei) returns (address) {
-        Product p = new Product(_name, _costInWei);
-        products[productCount] = p;
-        LogProductCreated(productCount, address(this), p);
-        productCount++;
-        return p;
-    }
-
-    function() {
-        throw;
     }
 
 }

@@ -1,7 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { push } from 'react-router-redux';
-import { Button } from 'semantic-ui-react';
+import { Grid, Button } from 'semantic-ui-react';
+
+import './landingContainer.css';
 
 var _this;
 
@@ -23,11 +25,15 @@ class LandingContainer extends React.Component {
 
     render() {
         return (
-            <div>
-                <h1>Sell your work directly to your audience</h1>
-                <p>EthFile is a fully decentralized platform for selling digital products. EthFile is proudly powered by Ethereum and IPFS.</p>
-                <Button primary onClick={_this.handleSignupClicked}>Start selling</Button>
-            </div>
+            <Grid container>
+                <Grid.Column width={16}>
+                    <div className="masthead">
+                        <h1>Sell your work directly to your audience</h1>
+                        <p>Etherfile is a decentralized platform for selling digital content, backed by Ethereum smart contracts.</p>
+                        <Button primary size='huge' onClick={_this.handleSignupClicked}>Start selling</Button>
+                    </div>
+                </Grid.Column>
+            </Grid>
         )
     }
 }

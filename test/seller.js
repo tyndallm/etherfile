@@ -22,7 +22,6 @@ contract('Seller', function(accounts) {
                     productCount: sellerDetails[5].toNumber(),
                 }
 
-                // console.log(sellerObject);
                 assert.equal(username, sellerObject.username, "usernames should match");
                 assert.equal(email, sellerObject.email, "emails should match");
 
@@ -37,15 +36,12 @@ contract('Seller', function(accounts) {
                     assert.equal(productId.valueOf(), 0, "should be the first product");
 
                     return Product.at(productContract).then(function(instance) {
-                        // console.log("product instance: ", instance);
                         instance.getProduct.call().then(function(productDetails) {
-                            console.log(productDetails);
                             var productObject = {
                                 name: web3.toUtf8(productDetails[0]),
                                 cost: productDetails[1].toNumber(),
                                 unitsSold: productDetails[2].valueOf()
                             }
-                            console.log(productObject);
                             assert.equal(productName, productObject.name, "names should match");
                             assert.equal(productCost, productObject.cost, "cost in wei should match");
                             assert.equal(0, productObject.unitsSold, "should not have any units sold");
