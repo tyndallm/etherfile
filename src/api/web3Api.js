@@ -7,69 +7,54 @@ import ProductContract from '../../build/contracts/Product.json';
 
 const contract = require('truffle-contract');
 
-const SIGN_DATA = web3Client().sha3("Etherfile is awesome");
-
 let web3Provided;
+let provider;
 
-/**
- * Initialize EtherfileHub contract factory
- */
+/*eslint-disable */
+if (typeof web3 !== 'undefined') {
+    provider = new Web3(web3.currentProvider);
+} else {
+    provider = new Web3.providers.HttpProvider("http://localhost:8545");
+}
+/*eslint-enable */
+
 const etherfileHub = contract(EtherfileHubContract);
-/*eslint-disable */
-if (typeof web3 !== 'undefined') {
-    etherfileHub.setProvider(new Web3(web3.currentProvider));
-} else {
-    etherfileHub.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
-}
-/*eslint-enable */
+etherfileHub.setProvider(provider);
 
-/**
- * Initialize Seller contract factory
- */
 const seller = contract(SellerContract);
-/*eslint-disable */
-if (typeof web3 !== 'undefined') {
-    seller.setProvider(new Web3(web3.currentProvider));
-} else {
-    seller.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
-}
-/*eslint-enable */
+seller.setProvider(provider);
 
-/**
- * Initialize Product contract factory
- */
 const product = contract(ProductContract);
-/*eslint-disable */
-if (typeof web3 !== 'undefined') {
-    product.setProvider(new Web3(web3.currentProvider));
-} else {
-    product.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
-}
-/*eslint-enable */
+product.setProvider(provider);
 
-function initializeWeb3() {
-    /*eslint-disable */
-    if (typeof web3 !== 'undefined') {
-        web3Provided = new Web3(web3.currentProvider);
-    } else {
-        web3Provided = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-    }
-    /*eslint-enable */
+const web3 = new Web3(provider);
 
-    return getExtendedWeb3Provider(web3Provided);
-}
+const SIGN_DATA = web3.sha3("Bacon ipsum dolor amet leberkas chuck tongue tri-tip ball tip");
 
-function web3Client() {
-    if (web3Provided) {
-        return web3Provided;
-    } else {
-        return initializeWeb3();
-    }
-}
+
+// function initializeWeb3() {
+//     /*eslint-disable */
+//     if (typeof web3 !== 'undefined') {
+//         web3Provided = new Web3(web3.currentProvider);
+//     } else {
+//         web3Provided = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+//     }
+//     /*eslint-enable */
+
+//     return getExtendedWeb3Provider(web3Provided);
+// }
+
+// function web3Client() {
+//     if (web3Provided) {
+//         return web3Provided;
+//     } else {
+//         return initializeWeb3();
+//     }
+// }
 
 export function getAccounts() {
     return new Promise((resolve, reject) => {
-        web3Client().eth.getAccounts(function (err, accts) {
+        web3.eth.getAccounts(function (err, accts) {
             if (err != null) {
                 console.log("Web3Api Error: ", err);
                 reject();
@@ -95,7 +80,7 @@ export function getAccounts() {
 
 export function getAccountBalance(account) {
     return new Promise((resolve, reject) => {
-        web3Client().eth.getBalance(account, function(err, value) {
+        web3.eth.getBalance(account, function(err, value) {
             resolve(value.valueOf());
         });
     });
@@ -107,7 +92,7 @@ export function registerSeller(userAddress, username, email) {
         // let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
 
         // generate public key for username
-        web3Client().eth.sign(userAddress, SIGN_DATA , function (err, result) {
+        web3.eth.sign(userAddress, SIGN_DATA , function (err, result) {
             var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // 64 bits
             var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
 
@@ -176,8 +161,8 @@ export function getSellerDetails(sellerAddress) {
         seller.at(sellerAddress).then(function(instance) {
             instance.getSeller.call().then(function(sellerDetails) {
                 let sellerObject = {
-                    username: web3Client().toAscii(sellerDetails[0]),
-                    email: web3Client().toAscii(sellerDetails[1]),
+                    username: web3.toAscii(sellerDetails[0]),
+                    email: web3.toAscii(sellerDetails[1]),
                     publicKey: sellerDetails[2],
                     creator: sellerDetails[3],
                     created: sellerDetails[4].toNumber(),
@@ -193,7 +178,7 @@ export function getSellerDetails(sellerAddress) {
 export function authenticateSellerKey(retrievedPublicKey, userAddress) {
     return new Promise((resolve, reject) => {
         // let signData = "0x9dd2c369a187b4e6b9c402f030e50743e619301ea62aa4c0737d4ef7e10a3d49"; // web3.sha3("xyz");
-        web3Client().eth.sign(userAddress, SIGN_DATA, function (err, result) {
+        web3.eth.sign(userAddress, SIGN_DATA, function (err, result) {
             var privateKey = bitcore.PrivateKey.fromString(result.slice(2, 66)); // 64 bits
             var publicKey = bitcore.PublicKey.fromPrivateKey(privateKey);
 
@@ -293,7 +278,7 @@ export function getProduct(productAddress) {
 
             instance.getProduct.call().then(function(productDetails) {
                 resolve({
-                    name: web3Client().toAscii(productDetails[0]),
+                    name: web3.toAscii(productDetails[0]),
                     costInWei: productDetails[1].toNumber(),
                     unitsSold: productDetails[2],
                 });
@@ -304,7 +289,7 @@ export function getProduct(productAddress) {
 
 export function getCurrentBlockNumber() {
     return new Promise((resolve, reject) => {
-        web3Client().eth.getBlockNumber(function (err, blockNum) {
+        web3.eth.getBlockNumber(function (err, blockNum) {
             if (err) {
                 reject();
             }
@@ -315,7 +300,7 @@ export function getCurrentBlockNumber() {
 
 export function getNetwork() {
     return new Promise((resolve, reject) => {
-        web3Client().version.getNetwork(function (err, network) {
+        web3.version.getNetwork(function (err, network) {
             if (err) {
                 reject();
             }
@@ -325,9 +310,9 @@ export function getNetwork() {
 }
 
 export function toWei(ethValue) {
-    return web3Client().toWei(ethValue, "ether");
+    return web3.toWei(ethValue, "ether");
 }
 
 export function fromWei(weiValue) {
-    return web3Client().fromWei(weiValue, "ether");
+    return web3.fromWei(weiValue, "ether");
 }
