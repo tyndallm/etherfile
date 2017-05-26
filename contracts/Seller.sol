@@ -20,6 +20,7 @@ contract Seller is Ownable{
     Details details;
 
     event BroadcastSellerCreated(bytes32 indexed username, address indexed hubAddress, string publicKey);
+    event LogFailure(string message);
 
     function Seller(bytes32 _username, bytes32 _email, string _publicKey, address _userAddr) {
 
@@ -34,14 +35,6 @@ contract Seller is Ownable{
         productCount = 0;
 
         BroadcastSellerCreated(_username, msg.sender, _publicKey);
-    }
-
-    function getPublicKey() returns (string) {
-        return details.publicKey;
-    }
-
-    function getProductCount() returns (uint) {
-        return productCount;
     }
 
     /**
@@ -61,6 +54,20 @@ contract Seller is Ownable{
             details.created,
             productCount
         );
+    }
+
+    function createProduct(bytes32 _name) returns (bool successful) {
+        
+        // if (_name.length == 0) {
+        //     LogFailure("Name cannot be empty");
+        //     throw;
+        // }
+
+        Product p = new Product(_name); // will need userAddress, cost, and details
+        products[productCount] = p;
+        productCount++;
+
+        return true;
     }
 
 }

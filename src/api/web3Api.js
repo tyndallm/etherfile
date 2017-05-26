@@ -123,7 +123,7 @@ export function loginSeller(userAddress) {
                 if (sellerAddress !== '0x0000000000000000000000000000000000000000') {
                     console.log("User is registered");
                     getSellerDetails(sellerAddress).then(function(sellerDetails) {
-                        console.log("getSellerDetails result: ", sellerDetails);
+                        // console.log("getSellerDetails result: ", sellerDetails);
                         //resolve(result);
 
                         authenticateSellerKey(sellerDetails.publicKey, userAddress).then(function(authenticated) {
@@ -203,64 +203,64 @@ export function createProduct(userAddress, sellerAddress, name, costInWei) {
 
     console.log("userAddress: ", userAddress);
     console.log("sellerAddress: ", sellerAddress);
-    var productName = "Test Product";
+    var productName = "TestProduct";
     var productCost = 10000000000000000000;
 
     return new Promise((resolve, reject) => {
-        let sellerInstance;
         seller.at(sellerAddress).then(function(instance) {
-            console.log("instance: ", instance);
-            return instance.getPublicKey.call();
-        }).catch(function(exception){ 
-            console.log(exception);
-        }).then(function(result) {
-            console.log("result: ", result);
-        });
-    });
-}
-
-// export function getSellerProducts(sellerAddress) {
-//     console.log("requested seller address: ", sellerAddress);
-//     return new Promise((resolve, reject) => {
-//         seller.at(sellerAddress).then(function(instance) {
-//             return instance.productCount.call();
-//         }).then(function(result) {
-//             console.log("result: ", result);
-//             let productCount = result.valueOf();
-//             console.log("web3Api.getSellerProducts() count: " + productCount);
-
-//             // create an array where length = productCount
-//             let array = Array.apply(null, {length: productCount}).map(Number.call, Number);
-
-//             // fill array with corresponding product contract addresses
-//             let productAddressPromises = array.map((id => {
-//                 return getProductAddress(id);
-//             }));
-
-//             // get projectDetails for each projectAddress promise
-//             Promise.all(productAddressPromises).then((productAddresses) => {
-//                 let productPromises = productAddresses.map((address => {
-//                     return getProduct(address);
-//                 }));
-
-//                 Promise.all(productPromises).then((products) => {
-//                     resolve(products);
-//                 });
-//             });
-//         });
-//     });
-// }
-
-export function getSellerProducts(sellerContractAddress) {
-    return new Promise((resolve, reject) => {
-        seller.at(sellerContractAddress).then(function(instance) {
-            instance.productCount.call().then(function(count) {
-                console.log("count.valueOf(): ", count.valueOf());
-                resolve(count.valueOf());
+            instance.createProduct(productName, { from: userAddress, gas: 4100000}).then(function(result) {
+                console.log(result);
+                resolve(result);
+            })
+            .catch(function(e) {
+                console.log(e);
             });
         });
     });
 }
+
+export function getSellerProducts(sellerAddress) {
+    console.log("requested seller address: ", sellerAddress);
+    return new Promise((resolve, reject) => {
+        seller.at(sellerAddress).then(function(instance) {
+            return instance.productCount.call();
+        }).then(function(result) {
+
+            let productCount = result.valueOf();
+            console.log("web3Api.getSellerProducts() count: " + productCount);
+
+            // create an array where length = productCount
+            let array = Array.apply(null, {length: productCount}).map(Number.call, Number);
+
+            // fill array with corresponding product contract addresses
+            let productAddressPromises = array.map((id => {
+                return getProductAddress(id);
+            }));
+
+            // get projectDetails for each projectAddress promise
+            Promise.all(productAddressPromises).then((productAddresses) => {
+                let productPromises = productAddresses.map((address => {
+                    return getProduct(address);
+                }));
+
+                Promise.all(productPromises).then((products) => {
+                    resolve(products);
+                });
+            });
+        });
+    });
+}
+
+// export function getSellerProducts(sellerContractAddress) {
+//     return new Promise((resolve, reject) => {
+//         seller.at(sellerContractAddress).then(function(instance) {
+//             instance.productCount.call().then(function(count) {
+//                 console.log("count.valueOf(): ", count.valueOf());
+//                 resolve(count.valueOf());
+//             });
+//         });
+//     });
+// }
 
 function getProductAddress(sellerAddress, id) {
     return new Promise((resolve, reject) => {
@@ -279,8 +279,8 @@ export function getProduct(productAddress) {
             instance.getProduct.call().then(function(productDetails) {
                 resolve({
                     name: web3.toAscii(productDetails[0]),
-                    costInWei: productDetails[1].toNumber(),
-                    unitsSold: productDetails[2],
+                    // costInWei: productDetails[1].toNumber(),
+                    unitsSold: productDetails[1],
                 });
             });
         });

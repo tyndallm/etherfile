@@ -6,6 +6,7 @@ import {
 } from '../actions/userActions';
 import {
     loginSeller,
+    fetchProducts,
 } from '../actions/sellerActions';
 
 import { Grid } from 'semantic-ui-react';
@@ -20,7 +21,10 @@ class AppContainer extends React.Component {
         dispatch(fetchAccountsAndBalances())
         .then(() => {
             let selectedUserAddress = this.props.user.accounts[this.props.user.selectedAccount].address;
-            dispatch(loginSeller(selectedUserAddress));
+            dispatch(loginSeller(selectedUserAddress)).then(() => {
+                console.log("logged in: ", this.props.seller);
+                dispatch(fetchProducts(this.props.seller.contractAddress));
+            });
         });
     }
 
@@ -51,7 +55,8 @@ class AppContainer extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        user: state.user
+        user: state.user,
+        seller: state.seller,
     };
 }
 
