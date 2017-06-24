@@ -14,7 +14,7 @@ export default () => {
             <IndexRoute component={LandingContainer}/>
             <Route path="/register" component={RegisterContainer}/>
             <Route path="/dashboard" component={DashboardContainer}/>
-            <Route path="/product" component={ProductContainer}/>
+            <Route path="/products/:address" component={ProductContainer}/>
         </Route>
     )
 }

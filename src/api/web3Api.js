@@ -1,5 +1,4 @@
 import Web3 from 'web3';
-import {getExtendedWeb3Provider} from '../utils/web3Utils';
 import bitcore from 'bitcore-lib';
 import EtherfileHubContract from '../../build/contracts/EtherfileHub.json';
 import SellerContract from '../../build/contracts/Seller.json';
@@ -7,7 +6,6 @@ import ProductContract from '../../build/contracts/Product.json';
 
 const contract = require('truffle-contract');
 
-let web3Provided;
 let provider;
 
 /*eslint-disable */
@@ -30,27 +28,6 @@ product.setProvider(provider);
 const web3 = new Web3(provider);
 
 const SIGN_DATA = web3.sha3("Bacon ipsum dolor amet leberkas chuck tongue tri-tip ball tip");
-
-
-// function initializeWeb3() {
-//     /*eslint-disable */
-//     if (typeof web3 !== 'undefined') {
-//         web3Provided = new Web3(web3.currentProvider);
-//     } else {
-//         web3Provided = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-//     }
-//     /*eslint-enable */
-
-//     return getExtendedWeb3Provider(web3Provided);
-// }
-
-// function web3Client() {
-//     if (web3Provided) {
-//         return web3Provided;
-//     } else {
-//         return initializeWeb3();
-//     }
-// }
 
 export function getAccounts() {
     return new Promise((resolve, reject) => {
@@ -203,13 +180,14 @@ export function createProduct(userAddress, sellerAddress, name, costInWei) {
 
     console.log("userAddress: ", userAddress);
     console.log("sellerAddress: ", sellerAddress);
-    var productName = "TestProduct";
-    var productCost = 10000000000000000000;
+    var productName = "dApp developer handbook";
+    var productDescription = "This is a product description. It has all of these various properties.";
+    var productCost = this.toWei(0.25);
 
     return new Promise((resolve, reject) => {
-        seller.at(sellerAddress).then(function(instance) {
-            instance.createProduct(productName, { from: userAddress, gas: 4100000}).then(function(result) {
-                console.log(result);
+        etherfileHub.deployed().then(function(instance) {
+            instance.createProduct(sellerAddress, productName, productDescription, productCost, { from: userAddress, gas: 300000}).then(function(result) {
+                console.log("createProduct: ", result);
                 resolve(result);
             })
             .catch(function(e) {
@@ -234,7 +212,7 @@ export function getSellerProducts(sellerAddress) {
 
             // fill array with corresponding product contract addresses
             let productAddressPromises = array.map((id => {
-                return getProductAddress(id);
+                return getProductAddress(sellerAddress, id);
             }));
 
             // get projectDetails for each projectAddress promise
@@ -251,17 +229,6 @@ export function getSellerProducts(sellerAddress) {
     });
 }
 
-// export function getSellerProducts(sellerContractAddress) {
-//     return new Promise((resolve, reject) => {
-//         seller.at(sellerContractAddress).then(function(instance) {
-//             instance.productCount.call().then(function(count) {
-//                 console.log("count.valueOf(): ", count.valueOf());
-//                 resolve(count.valueOf());
-//             });
-//         });
-//     });
-// }
-
 function getProductAddress(sellerAddress, id) {
     return new Promise((resolve, reject) => {
         seller.at(sellerAddress).then(function(instance) {
@@ -275,12 +242,14 @@ function getProductAddress(sellerAddress, id) {
 export function getProduct(productAddress) {
     return new Promise((resolve, reject) => {
         product.at(productAddress).then(function(instance) {
-
             instance.getProduct.call().then(function(productDetails) {
+                // console.log("productDetails: ", productDetails);
                 resolve({
                     name: web3.toAscii(productDetails[0]),
-                    // costInWei: productDetails[1].toNumber(),
-                    unitsSold: productDetails[1],
+                    description: web3.toAscii(productDetails[1]),
+                    costInWei: productDetails[2].toNumber(),
+                    unitsSold: productDetails[3].toNumber(),
+                    address: productAddress
                 });
             });
         });

@@ -10,25 +10,38 @@ class Navigation extends Component {
         dispatch(push(value));
     }
 
-    render() {
-        const {
-            user: { 
-                accounts,
-                selectedAccount,
-                seller,
-            }
-        } = this.props;
+    renderLoggedInNavBar = (accounts, selectedAccount) => {
+        return (
+            <Menu size='small'
+                borderless={true}
+                fixed={'top'}>
+                <Container>
+                    <Menu.Item name='Etherfile' value={'/'} onClick={this.handleItemClick} />
+                    <Menu.Item>
+                        <Label color={'teal'}>
+                            <Icon name='plug' />Ropsten
+                        </Label>
+                    </Menu.Item>
 
-        let selectedDropdown = "";
+                    <Menu.Menu position='right'>
+                        <Dropdown item text={selectedDropdown}>
+                            <Dropdown.Menu>
+                                 {accounts.map((account, index) =>
+                                    <Dropdown.Item 
+                                        key={index}
+                                        onClick={() => this.props.onHandleSelectAccount(index)}>
+                                        {account.address}
+                                    </Dropdown.Item>
+                                 )}
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    </Menu.Menu>
+                </Container>
+            </Menu>
+        );
+    }
 
-        if (accounts.length > 0) {
-            if (!!seller) {
-                selectedDropdown = seller.username;
-            } else {
-                selectedDropdown = accounts[selectedAccount].address;
-            }
-        }
-
+    renderGuestNavBar = (accounts, selectedAccount) => {
         return (
             <Menu size='small'
                 borderless={true}
@@ -60,8 +73,41 @@ class Navigation extends Component {
                     </Menu.Menu>
                 </Container>
             </Menu>
-            
         )
+    }
+
+    render() {
+        const {
+            user: { 
+                accounts,
+                selectedAccount,
+            },
+            seller,
+        } = this.props;
+
+        console.log("seller: ", seller);
+
+        let selectedDropdown = "";
+
+        if (accounts.length > 0) {
+            if (!!seller) {
+                selectedDropdown = seller.username;
+            } else {
+                selectedDropdown = accounts[selectedAccount].address;
+            }
+        }
+
+        let displayNav = {};
+
+        if (!!seller) {
+            displayNav = this.renderLoggedInNavBar(accounts, selectedAccount);
+        } else {
+            displayNav = this.renderGuestNavBar(accounts, selectedAccount);
+        }
+
+        return (
+            { displayNav }
+        );
     }
 }
 

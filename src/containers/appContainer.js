@@ -10,7 +10,8 @@ import {
 } from '../actions/sellerActions';
 
 import { Grid } from 'semantic-ui-react';
-import Navigation from '../components/navigation';
+// import Navigation from '../components/navigation';
+import Navbar from '../components/navigation/navbar';
 
 import './appContainer.css';
 
@@ -35,10 +36,12 @@ class AppContainer extends React.Component {
     }
 
     render() {
+        console.log(this.props.seller);
         let content = (
             <div className={'mainContent'}>
-                <Navigation 
+                <Navbar 
                     user={this.props.user}
+                    seller = {this.props.seller}
                     onHandleSelectAccount={this.handleSelectAccount} 
                     dispatch={this.props.dispatch}/>
                 {this.props.children}
